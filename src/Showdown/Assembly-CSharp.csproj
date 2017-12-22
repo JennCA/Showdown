@@ -55,6 +55,7 @@
      <Compile Include="Assets\CardManager.cs" />
      <Compile Include="Assets\Draggable.cs" />
      <Compile Include="Assets\Dropzone.cs" />
+     <Compile Include="Assets\Textures.cs" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
