@@ -51,11 +51,15 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\Button.cs" />
-     <Compile Include="Assets\CardManager.cs" />
-     <Compile Include="Assets\Draggable.cs" />
-     <Compile Include="Assets\Dropzone.cs" />
-     <Compile Include="Assets\Textures.cs" />
+     <Compile Include="Assets\Scripts\Button.cs" />
+     <Compile Include="Assets\Scripts\Card.cs" />
+     <Compile Include="Assets\Scripts\CardManager.cs" />
+     <Compile Include="Assets\Scripts\Draggable.cs" />
+     <Compile Include="Assets\Scripts\Dropzone.cs" />
+     <Compile Include="Assets\Scripts\GameManager.cs" />
+     <Compile Include="Assets\Scripts\MenuBehavior.cs" />
+     <Compile Include="Assets\Scripts\Textures.cs" />
+     <None Include="Assets\Scene\ProjectSettings\ProjectVersion.txt" />
  <Reference Include="UnityEngine.UI">
  <HintPath>C:/Program Files/Unity/Editor/Data/UnityExtensions/Unity/GUISystem/UnityEngine.UI.dll</HintPath>
  </Reference>
