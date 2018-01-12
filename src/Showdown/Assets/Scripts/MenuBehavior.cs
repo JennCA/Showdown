@@ -8,13 +8,10 @@ public class MenuBehavior : MonoBehaviour {
 		switch (i) {
 		default:
 		case(0):
-			SceneManager.LoadScene ("showdown");	
+			SceneManager.LoadScene ("G_Modes");	
 			break;
 		case(1):
 			Application.Quit ();
-			break;
-		case(2):
-			SceneManager.LoadScene ("Rules");
 			break;
 		}
 
