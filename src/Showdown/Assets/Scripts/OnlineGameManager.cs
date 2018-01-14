@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 public class OnlineGameManager : MonoBehaviour
 {
@@ -38,6 +39,7 @@ public class OnlineGameManager : MonoBehaviour
 
 			Client c = Instantiate(clientPrefab).GetComponent<Client>();
 			c.clientName = nameInput.text;
+			c.isHost = true;
 			if(c.clientName == "")
 				c.clientName = "Host";
 			c.ConnectToServer("127.0.0.1", 6321);
@@ -83,5 +85,10 @@ public class OnlineGameManager : MonoBehaviour
 		Client c = FindObjectOfType<Client> ();
 		if (c != null)
 			Destroy (c.gameObject);
+	}
+
+	public void StartGame()
+	{
+		SceneManager.LoadScene ("ShowdownOnline");
 	}
 }

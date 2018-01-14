@@ -119,6 +119,7 @@ public class Server : MonoBehaviour
 	//Server Send
 	private void Broadcast(string data, List<ServerClient> cl)
 	{
+		Debug.Log ("ServerBroadcasting: " + data);
 		foreach (ServerClient sc in cl) 
 		{
 			try
@@ -142,7 +143,23 @@ public class Server : MonoBehaviour
 	//Server Read
 	private void OnIncomingData(ServerClient c, string data)
 	{
-		Debug.Log (c.clientName + " + " + data);
+		Debug.Log ("Server:" + data);
+		string[] aData = data.Split ('|');
+
+		switch (aData [0]) 
+		{
+		case "CWHO":
+			c.clientName = aData [1];
+			c.isHost = (aData [2] == "0") ? false : true;
+			Broadcast ("SCNN|" + c.clientName, clients);
+			break;
+		case "CFLIP":
+			Broadcast ("SFLIP|"+aData[1], clients);
+			break;
+		case "CARDS":
+			Broadcast (data, clients);
+			break;
+		}
 	}
 }
 
@@ -150,6 +167,7 @@ public class ServerClient
 {
 	public string clientName;
 	public TcpClient tcp;
+	public bool isHost;
 
 	public ServerClient(TcpClient tcp)
 	{

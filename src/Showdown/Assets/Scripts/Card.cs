@@ -1,10 +1,10 @@
-﻿using UnityEngine;
+﻿ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 
 public class Card : MonoBehaviour {
 
-	public static bool DO_NOT = false;
+	//public static bool DO_NOT = false;
 
 	[SerializeField]
 	private int _state;
@@ -17,6 +17,9 @@ public class Card : MonoBehaviour {
 	private Sprite _cardFace;
 
 	private GameObject _manager;
+	private GameManager _gm;
+
+	private int _cardIndex;
 
 	void Start() {
 		_state = 1;
@@ -27,19 +30,30 @@ public class Card : MonoBehaviour {
 		_cardBack = _manager.GetComponent<GameManager> ().getCardBack ();
 		_cardFace = _manager.GetComponent<GameManager> ().getCardFace (_cardValue);
 
-		flipCard ();
+		forceFlipCard ();
+	}
+	public void setupGameManager(GameManager gm) {
+		_gm = gm;
 	}
 
-	public void flipCard() {
+	public void flipCard ()
+	{
+		if (!_gm.canFlip (_cardIndex)) { 
+			return;
+		}
+		//forceFlipCard ();
+	}
 
+	public void forceFlipCard ()
+	{
 		if (_state == 0)
 			_state = 1;
 		else if (_state == 1)
 			_state = 0;
-
-		if (_state == 0 && !DO_NOT)
+		//FIXME OPRAVIT
+		if (_state == 0 /*&& !DO_NOT*/)
 			GetComponent<Image> ().sprite = _cardBack;
-		else if (_state == 1 && !DO_NOT)
+		else if (_state == 1 /*&& !DO_NOT*/)
 			GetComponent<Image> ().sprite = _cardFace;
 	}
 
@@ -52,7 +66,10 @@ public class Card : MonoBehaviour {
 		get { return _state; }
 		set { _state = value; }
 	}
-
+	public int cardIndex {
+		get { return _cardIndex; }
+		set { _cardIndex = value; }
+	}
 	public bool initialized {
 		get { return _initialized; }
 		set { _initialized = value; }
@@ -68,6 +85,6 @@ public class Card : MonoBehaviour {
 			GetComponent<Image> ().sprite = _cardBack;
 		else if (_state == 1)
 			GetComponent<Image> ().sprite = _cardFace;
-		DO_NOT = false;
+		//DO_NOT = false;
 	}
 }

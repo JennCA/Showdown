@@ -8,6 +8,7 @@ using System.Collections.Generic;
 public class Client : MonoBehaviour 
 {
 	public string clientName;
+	public bool isHost;
 	
 	private bool socketReady;
 	private TcpClient socket;
@@ -70,6 +71,7 @@ public class Client : MonoBehaviour
 	//Read messages from the server
 	private void OnIncomingData(string data)
 	{
+		Debug.Log ("Client:" + data);
 		string[] aData = data.Split ('|');
 
 		switch (aData [0]) 
@@ -78,7 +80,17 @@ public class Client : MonoBehaviour
 			for (int i = 1; i < aData.Length - 1; i++) {
 				UserConnected (aData [i], false);	
 			}
-			Send ("CWHO|" + clientName);
+			Send ("CWHO|" + clientName + "|" + ((isHost)?1:0).ToString());
+			break;
+		case "SCNN":
+			UserConnected (aData [1], false);
+			break;
+				
+		case "SFLIP":
+			GameManager.Instance.tryFlip(int.Parse(aData [1]));
+			break;
+		case "CARDS":
+			GameManager.Instance.initDefinedCards(aData [1]);
 			break;
 		}
 	}
@@ -89,6 +101,9 @@ public class Client : MonoBehaviour
 		c.name = name;
 
 		players.Add (c);
+
+		if (players.Count == 2)
+			OnlineGameManager.Instance.StartGame ();
 	}
 
 	private void OnApplicationQuit()

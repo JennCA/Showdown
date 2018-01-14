@@ -6,6 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 
+	public static GameManager Instance { get; set; }
 	public Text p1;
 	public Text p2;
 	public Sprite[] cardFace;
@@ -13,21 +14,73 @@ public class GameManager : MonoBehaviour {
 	public GameObject[] cards;
 	public Text matchText;
 
+	private Client client;
+
 	private bool _init = false;
 	private int _matches = 13;
 	private int score1 = 0;
 	private int score2 = 0;
-	private bool firstplayer = true;
+	private bool myTurn = true;
+	private Vector2 mouseClick;
 	
 	// Update is called once per frame
 	void Update () {
-		if (!_init)
-			initializeCards ();
-	
-		if (Input.GetMouseButtonUp (0))
+		if (!_init) {
+			if (client != null && client.isHost) {
+				initializeCards ();
+			} else {
+				initializeCards ();
+			}
+		}
+	/*
+		if (Input.GetMouseButtonUp (0)) {
 			checkCards ();
+		}
+		*/
 	}
-		
+	public void initDefinedCards(string cardsPosition) {
+		if (client == null && client.isHost) {
+			// ignore
+			return;
+		}
+
+		string[] cardValues = cardsPosition.Split (',');
+
+		for (int i = 0; i < cardValues.Length; i++) {
+			cards [i].GetComponent<Card> ().cardValue = int.Parse(cardValues[i]);
+			cards [i].GetComponent<Card> ().initialized = true;
+		}
+		int cardIndex = 0;
+		foreach (GameObject c in cards) {
+			c.GetComponent<Card> ().cardIndex = cardIndex++;
+			c.GetComponent<Card> ().setupGraphics ();
+			c.GetComponent<Card> ().setupGameManager (this);
+		}
+		if (!_init)
+			_init = true;
+
+		checkCards ();
+	}
+	public void tryFlip(int cardIndex) {
+		/*
+		if (myTurn)
+			//ignore
+			return;
+			*/
+		cards [cardIndex].GetComponent<Card> ().forceFlipCard ();
+		checkCards ();
+	}	
+	public bool canFlip(int cardIndex) {
+		Debug.Log ("CanFlip index: " + cardIndex);
+		if (!myTurn) {
+			return false;
+		}
+		string msg = "CFLIP|";
+		msg +=cardIndex+ "|";
+		client.Send (msg);
+
+		return true;   
+	}
 
 	void initializeCards() {
 		for (int id = 0; id < 2; id++) {
@@ -44,11 +97,27 @@ public class GameManager : MonoBehaviour {
 			}
 		}
 
-		foreach (GameObject c in cards)
-			c.GetComponent<Card> ().setupGraphics ();
 
+		int cardIndex = 0;
+		foreach (GameObject c in cards) {
+			c.GetComponent<Card> ().cardIndex = cardIndex++;
+			c.GetComponent<Card> ().setupGraphics ();
+			c.GetComponent<Card> ().setupGameManager (this);
+		}
+
+		string cardIds = "";
+		for (int i = 0; i < cards.Length; i++) {
+			if (cardIds.Length != 0) {
+				cardIds += ",";
+			}
+			cardIds += cards [i].GetComponent<Card> ().cardValue;
+		}
+		client.Send ("CARDS|" + cardIds);
+
+		Debug.Log ("Cards : " + cardIds);
 		if (!_init)
 			_init = true;
+		
 	}
 
 	public Sprite getCardBack() {
@@ -60,6 +129,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void checkCards() {
+
 		List<int> c = new List<int> ();
 
 		for (int i = 0; i < cards.Length; i++) {
@@ -72,7 +142,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void cardComparison(List<int> c) {
-		Card.DO_NOT = true;
+		//Card.DO_NOT = true;
 
 		int x = 0;
 
@@ -80,8 +150,8 @@ public class GameManager : MonoBehaviour {
 			x = 2;
 			_matches--;
 			matchText.text = "Number of Matches: " + _matches;
-			//player1.text = "PLAYER 1: " + _matches;
-			if (firstplayer) {
+			//p1.text = "PLAYER 1: " + _matches;
+			if (myTurn) {
 				score1++;
 			}
 			else {
@@ -93,10 +163,10 @@ public class GameManager : MonoBehaviour {
 				SceneManager.LoadScene ("Menu");
 		}
 		else {
-			firstplayer = !firstplayer;
+			myTurn = !myTurn;
 		}
 
-		if (firstplayer) {
+		if (myTurn) {
 			p1.color = Color.magenta;
 			p2.color = Color.black;
 		}
@@ -109,5 +179,17 @@ public class GameManager : MonoBehaviour {
 			cards [c [i]].GetComponent<Card> ().state = x;
 			cards [c [i]].GetComponent<Card> ().falseCheck ();
 		}
+	}
+
+	private void Start()
+	{
+		Instance = this;
+		client = FindObjectOfType<Client> ();
+		myTurn = client.isHost;
+		if (myTurn) 
+		{
+			
+		}
+			
 	}
 }
