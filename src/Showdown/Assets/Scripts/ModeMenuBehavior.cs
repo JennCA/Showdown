@@ -8,7 +8,7 @@ public class ModeMenuBehavior : MonoBehaviour {
 		switch (i) {
 		default:
 		case(0):
-			SceneManager.LoadScene ("");	
+			SceneManager.LoadScene ("Showdown2Players");	
 			break;
 		case(1):
 			SceneManager.LoadScene ("OnlineMenu");
