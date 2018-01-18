@@ -22,6 +22,7 @@ public class Server : MonoBehaviour
 		clients = new List<ServerClient> ();
 		disconnectList = new List<ServerClient> ();
 
+		// Start the server
 		try
 		{
 			server = new TcpListener(IPAddress.Any, port);
@@ -148,6 +149,8 @@ public class Server : MonoBehaviour
 
 		switch (aData [0]) 
 		{
+		//Client WHO?
+		// CWHO| clientName| ishost  
 		case "CWHO":
 			c.clientName = aData [1];
 			c.isHost = (aData [2] == "0") ? false : true;
@@ -163,6 +166,7 @@ public class Server : MonoBehaviour
 	}
 }
 
+//Constructor
 public class ServerClient
 {
 	public string clientName;

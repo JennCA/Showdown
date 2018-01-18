@@ -9,14 +9,15 @@ public class Client : MonoBehaviour
 {
 	public string clientName;
 	public bool isHost;
-	
+
+	// Used for connection and communication to server
 	private bool socketReady;
 	private TcpClient socket;
 	private NetworkStream stream;
 	private StreamWriter writer;
 	private StreamReader reader;
 
-	private List<GameClient> players = new List<GameClient>();
+	public List<GameClient> players = new List<GameClient>();
 
 	private void Start()
 	{
@@ -87,10 +88,10 @@ public class Client : MonoBehaviour
 			break;
 				
 		case "SFLIP":
-			GameManager.Instance.tryFlip(int.Parse(aData [1]));
+			GameManagerO.Instance.tryFlip(int.Parse(aData [1]));
 			break;
 		case "CARDS":
-			GameManager.Instance.initDefinedCards(aData [1]);
+			GameManagerO.Instance.initDefinedCards(aData [1]);
 			break;
 		}
 	}
@@ -102,9 +103,11 @@ public class Client : MonoBehaviour
 
 		players.Add (c);
 
-		if (players.Count == 2)
+		if (players.Count == 2){
 			OnlineGameManager.Instance.StartGame ();
+
 	}
+}
 
 	private void OnApplicationQuit()
 	{

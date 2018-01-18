@@ -17,6 +17,7 @@ public class OnlineGameManager : MonoBehaviour
 
 	public InputField nameInput;
 
+
 	private void Start()
 	{
 		Instance = this;
@@ -30,6 +31,7 @@ public class OnlineGameManager : MonoBehaviour
 		mainMenu.SetActive (false);
 		connectMenu.SetActive (true);
 	}
+
 	public void HostButton()
 	{
 		try
@@ -52,11 +54,12 @@ public class OnlineGameManager : MonoBehaviour
 		mainMenu.SetActive (false);
 		serverMenu.SetActive (true);
 	}
+
 	public void ConnectToServerButton()
 	{
 		string hostAddress = GameObject.Find ("HostInput").GetComponent<InputField> ().text;
 		if(hostAddress == "")
-			hostAddress = "172.0.0.1";
+			hostAddress = "127.0.0.1";
 
 		try
 		{

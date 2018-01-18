@@ -4,15 +4,17 @@ using UnityEngine.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour {
+public class GameManagerO : MonoBehaviour {
 
-	public static GameManager Instance { get; set; }
+	public static GameManagerO Instance { get; set; }
 	public Text p1;
 	public Text p2;
 	public Sprite[] cardFace;
 	public Sprite cardBack;
 	public GameObject[] cards;
 	public Text matchText;
+	public string playername1;
+	public string playername2;
 
 	private Client client;
 
@@ -26,35 +28,32 @@ public class GameManager : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
 		if (!_init) {
-			if (client != null && client.isHost) {
-				initializeCards ();
-			} else {
-				initializeCards ();
-			}
+			
+			initializeCards ();
+
 		}
-	/*
+
 		if (Input.GetMouseButtonUp (0)) {
 			checkCards ();
 		}
-		*/
+
 	}
 	public void initDefinedCards(string cardsPosition) {
 		if (client == null && client.isHost) {
-			// ignore
 			return;
 		}
 
 		string[] cardValues = cardsPosition.Split (',');
 
 		for (int i = 0; i < cardValues.Length; i++) {
-			cards [i].GetComponent<Card> ().cardValue = int.Parse(cardValues[i]);
-			cards [i].GetComponent<Card> ().initialized = true;
+			cards [i].GetComponent<CardO> ().cardValue = int.Parse(cardValues[i]);
+			cards [i].GetComponent<CardO> ().initialized = true;
 		}
 		int cardIndex = 0;
 		foreach (GameObject c in cards) {
-			c.GetComponent<Card> ().cardIndex = cardIndex++;
-			c.GetComponent<Card> ().setupGraphics ();
-			c.GetComponent<Card> ().setupGameManager (this);
+			c.GetComponent<CardO> ().cardIndex = cardIndex++;
+			c.GetComponent<CardO> ().setupGraphics ();
+			c.GetComponent<CardO> ().setupGameManager (this);
 		}
 		if (!_init)
 			_init = true;
@@ -62,12 +61,8 @@ public class GameManager : MonoBehaviour {
 		checkCards ();
 	}
 	public void tryFlip(int cardIndex) {
-		/*
-		if (myTurn)
-			//ignore
-			return;
-			*/
-		cards [cardIndex].GetComponent<Card> ().forceFlipCard ();
+		
+		cards [cardIndex].GetComponent<CardO> ().forceFlipCard ();
 		checkCards ();
 	}	
 	public bool canFlip(int cardIndex) {
@@ -90,19 +85,19 @@ public class GameManager : MonoBehaviour {
 				int choice = 0;
 				while (!test) {
 					choice = Random.Range (0, cards.Length);
-					test = !(cards [choice].GetComponent<Card> ().initialized);
+					test = !(cards [choice].GetComponent<CardO> ().initialized);
 				}
-				cards [choice].GetComponent<Card> ().cardValue = i;
-				cards [choice].GetComponent<Card> ().initialized = true;
+				cards [choice].GetComponent<CardO> ().cardValue = i;
+				cards [choice].GetComponent<CardO> ().initialized = true;
 			}
 		}
 
 
 		int cardIndex = 0;
 		foreach (GameObject c in cards) {
-			c.GetComponent<Card> ().cardIndex = cardIndex++;
-			c.GetComponent<Card> ().setupGraphics ();
-			c.GetComponent<Card> ().setupGameManager (this);
+			c.GetComponent<CardO> ().cardIndex = cardIndex++;
+			c.GetComponent<CardO> ().setupGraphics ();
+			c.GetComponent<CardO> ().setupGameManager (this);
 		}
 
 		string cardIds = "";
@@ -110,7 +105,7 @@ public class GameManager : MonoBehaviour {
 			if (cardIds.Length != 0) {
 				cardIds += ",";
 			}
-			cardIds += cards [i].GetComponent<Card> ().cardValue;
+			cardIds += cards [i].GetComponent<CardO> ().cardValue;
 		}
 		client.Send ("CARDS|" + cardIds);
 
@@ -133,7 +128,7 @@ public class GameManager : MonoBehaviour {
 		List<int> c = new List<int> ();
 
 		for (int i = 0; i < cards.Length; i++) {
-			if (cards [i].GetComponent<Card> ().state == 1)
+			if (cards [i].GetComponent<CardO> ().state == 1)
 				c.Add (i);
 		}
 
@@ -142,23 +137,33 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void cardComparison(List<int> c) {
-		//Card.DO_NOT = true;
-
+		
 		int x = 0;
 
-		if (cards [c [0]].GetComponent<Card> ().cardValue == cards [c [1]].GetComponent<Card> ().cardValue) {
+		if (cards [c [0]].GetComponent<CardO> ().cardValue == cards [c [1]].GetComponent<CardO> ().cardValue) {
 			x = 2;
 			_matches--;
 			matchText.text = "Number of Matches: " + _matches;
-			//p1.text = "PLAYER 1: " + _matches;
-			if (myTurn) {
-				score1++;
-			}
+			if (client.isHost) {
+				if (myTurn) {
+					score1++;
+				} else {
+					score2++;
+				}
+
+			} 
 			else {
-				score2++;
+				if (!myTurn) {
+					score1++;
+				}
+				else {
+					score2++;
+				}
+
 			}
-			p1.text = "player1: " + score1;
-			p2.text = "player2: " + score2;
+				
+			p1.text = playername1 + ": " + score1;
+			p2.text = playername2 + ": " + score2;
 			if (_matches == 0)
 				SceneManager.LoadScene ("Menu");
 		}
@@ -166,18 +171,12 @@ public class GameManager : MonoBehaviour {
 			myTurn = !myTurn;
 		}
 
-		if (myTurn) {
-			p1.color = Color.magenta;
-			p2.color = Color.black;
-		}
-		else {
-			p1.color = Color.black;
-			p2.color = Color.magenta;
-		}
+		HighlightPlayer ();
+
 
 		for (int i = 0; i < c.Count; i++) {
-			cards [c [i]].GetComponent<Card> ().state = x;
-			cards [c [i]].GetComponent<Card> ().falseCheck ();
+			cards [c [i]].GetComponent<CardO> ().state = x;
+			cards [c [i]].GetComponent<CardO> ().falseCheck ();
 		}
 	}
 
@@ -186,10 +185,41 @@ public class GameManager : MonoBehaviour {
 		Instance = this;
 		client = FindObjectOfType<Client> ();
 		myTurn = client.isHost;
-		if (myTurn) 
-		{
+		SetPlayerNames(client.players [0].name, client.players [1].name);
+
+		HighlightPlayer ();
 			
+	}
+
+	public void SetPlayerNames(string name1, string name2) {
+		playername1 = name1;
+		playername2 = name2;
+
+		p1.text = playername1 + ": " + score1;
+		p2.text = playername2 + ": " + score2;
+	}
+
+	private void HighlightPlayer(){
+		if (client.isHost) {
+			if (myTurn) {
+				p1.color = Color.magenta;
+				p2.color = Color.black;
+			}
+			else {
+				p1.color = Color.black;
+				p2.color = Color.magenta;
+			}
+		} 
+		else {
+			if (!myTurn) {
+				p1.color = Color.magenta;
+				p2.color = Color.black;
+			}
+			else {
+				p1.color = Color.black;
+				p2.color = Color.magenta;
+			}
 		}
-			
+
 	}
 }
