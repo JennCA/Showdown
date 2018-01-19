@@ -15,6 +15,8 @@ public class GameManagerO : MonoBehaviour {
 	public Text matchText;
 	public string playername1;
 	public string playername2;
+	private GameObject button;
+	private Text winnerText;
 
 	private Client client;
 
@@ -24,6 +26,7 @@ public class GameManagerO : MonoBehaviour {
 	private int score2 = 0;
 	private bool myTurn = true;
 	private Vector2 mouseClick;
+
 	
 	// Update is called once per frame
 	void Update () {
@@ -151,12 +154,10 @@ public class GameManagerO : MonoBehaviour {
 					score2++;
 				}
 
-			} 
-			else {
+			} else {
 				if (!myTurn) {
 					score1++;
-				}
-				else {
+				} else {
 					score2++;
 				}
 
@@ -164,8 +165,18 @@ public class GameManagerO : MonoBehaviour {
 				
 			p1.text = playername1 + ": " + score1;
 			p2.text = playername2 + ": " + score2;
-			if (_matches == 0)
-				SceneManager.LoadScene ("Menu");
+			if (_matches == 0) {
+				if (score1 > score2) {
+					winnerText.text = "The Winner is " + playername1;  
+				} else {
+					winnerText.text = "The Winner is " + playername2;  
+				}
+				//show winner
+				winnerText.enabled = true;
+
+				button.SetActive (true);
+				//exit button
+			}
 		}
 		else {
 			myTurn = !myTurn;
@@ -188,6 +199,10 @@ public class GameManagerO : MonoBehaviour {
 		SetPlayerNames(client.players [0].name, client.players [1].name);
 
 		HighlightPlayer ();
+
+		winnerText.enabled = false;
+		button = GameObject.Find ("Exit Button");
+		button.SetActive (false);
 			
 	}
 
@@ -221,5 +236,8 @@ public class GameManagerO : MonoBehaviour {
 			}
 		}
 
+	}
+	public void ExitGame(){
+		Application.Quit ();
 	}
 }

@@ -12,13 +12,20 @@ public class GameManager1 : MonoBehaviour {
 	public Sprite cardBack;
 	public GameObject[] cards;
 	public Text matchText;
+	public Text winnerText;
 
 	private bool _init = false;
 	private int _matches = 13;
 	private int score1 = 0;
 	private int score2 = 0;
 	private bool myTurn = true;
+	private GameObject button;
 
+	void Start (){
+		winnerText.enabled = false;
+		button = GameObject.Find ("Exit Button");
+		button.SetActive (false);
+	}
 
 	// Update is called once per frame
 	void Update () 
@@ -92,26 +99,43 @@ public class GameManager1 : MonoBehaviour {
 			}
 			p1.text = "player1: " + score1;
 			p2.text = "player2: " + score2;
-			if (_matches == 0)
-				SceneManager.LoadScene ("Menu");
+			if (_matches == 0) {
+				if (score1 > score2) {
+					winnerText.text = "The Winner is player1";  
+				} 
+				else {
+					winnerText.text = "The Winner is player2";  
+				}
+				//show winner
+				winnerText.enabled = true;
+			
+				button.SetActive (true);
+				//exit button
+			}
+		
+
+			
 		}
 		else {
 			myTurn = !myTurn;
 		}
 
 		if (myTurn) {
-			p1.color = Color.blue;
+			p1.color = Color.magenta;
 			p2.color = Color.black;
 		}
 		else {
 			p1.color = Color.black;
-			p2.color = Color.blue;
+			p2.color = Color.magenta;
 		}
 
 		for (int i = 0; i < c.Count; i++) {
 			cards [c [i]].GetComponent<Card1> ().state = x;
 			cards [c [i]].GetComponent<Card1> ().falseCheck ();
 		}
+	}
+	public void ExitGame(){
+		Application.Quit ();
 	}
 }
 	
